@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATSourcing Pro — CV Management &amp; Talent Database</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              blue: '#2875CF',
+              blueHover: '#1F62B3',
+              light: '#EAF2FC',
+              lightBorder: '#D4E4F9',
+              dark: '#171B24',
+              muted: '#525C6E',
+            }
+          },
+          boxShadow: {
+            soft: '0 10px 30px -10px rgba(23, 27, 36, 0.08)',
+            card: '0 4px 16px -4px rgba(23, 27, 36, 0.05)',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      color: #171B24;
+      background-color: #FFFFFF;
+    }
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F8FAFC;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-white text-brand-dark antialiased selection:bg-brand-light selection:text-brand-blue">
+
+  <!-- =====================================================================
+       TOAST NOTIFICATION BANNER (Non-intrusive feedback)
+       ===================================================================== -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- =====================================================================
+       MAIN NAVIGATION BAR
+       ===================================================================== -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20">
+        
+        <!-- Logo / Name -->
+        <button onclick="navigateTo('home')" class="flex items-center gap-2.5 text-left group focus:outline-none">
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-blue flex items-center justify-center text-white shadow-sm group-hover:bg-brand-blueHover transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          </div>
+          <div>
+            <span class="font-bold text-lg sm:text-xl tracking-tight text-brand-dark">ATSourcing <span class="text-brand-blue">Pro</span></span>
+          </div>
+        </button>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-slate-600">
+          <button onclick="navigateHomeSection('about')" class="hover:text-brand-blue transition-colors">About Us</button>
+          <button onclick="navigateHomeSection('features')" class="hover:text-brand-blue transition-colors">Features</button>
+          <button onclick="navigateHomeSection('pricing')" class="hover:text-brand-blue transition-colors">Pricing</button>
+          <button onclick="navigateTo('submit-cv')" id="nav-submit-cv" class="hover:text-brand-blue transition-colors">Submit Your CV</button>
+          <button onclick="openContactModal()" class="hover:text-brand-blue transition-colors">Contact Our Team</button>
+        </nav>
+
+        <!-- Right CTA & Workspace Switcher -->
+        <div class="hidden md:flex items-center gap-3">
+          <button onclick="openContactModal()" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-brand-blue hover:bg-brand-blueHover shadow-sm transition-all">
+            Talk to Sales
+          </button>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <div class="flex items-center gap-2 md:hidden">
+          <button onclick="toggleMobileMenu()" aria-label="Toggle Menu" class="p-2 rounded-lg text-slate-600 hover:bg-slate-100 focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-5 space-y-2 shadow-lg">
+      <button onclick="navigateHomeSection('about'); toggleMobileMenu()" class="block w-full text-left py-2.5 px-3 rounded-lg text-sm font-medium text-slate-700 hover:bg-brand-light hover:text-brand-blue">About Us</button>
+      <button onclick="navigateHomeSection('features'); toggleMobileMenu()" class="block w-full text-left py-2.5 px-3 rounded-lg text-sm font-medium text-slate-700 hover:bg-brand-light hover:text-brand-blue">Features</button>
+      <button onclick="navigateHomeSection('pricing'); toggleMobileMenu()" class="block w-full text-left py-2.5 px-3 rounded-lg text-sm font-medium text-slate-700 hover:bg-brand-light hover:text-brand-blue">Pricing</button>
+      <button onclick="navigateTo('submit-cv'); toggleMobileMenu()" class="block w-full text-left py-2.5 px-3 rounded-lg text-sm font-medium text-slate-700 hover:bg-brand-light hover:text-brand-blue">Submit Your CV</button>
+      <button onclick="openContactModal(); toggleMobileMenu()" class="block w-full text-left py-2.5 px-3 rounded-lg text-sm font-medium text-slate-700 hover:bg-brand-light hover:text-brand-blue">Contact Our Team</button>
+      <div class="pt-2 border-t border-slate-100 flex flex-col gap-2">
+        <button onclick="openContactModal(); toggleMobileMenu()" class="w-full py-2.5 px-4 rounded-lg text-sm font-semibold text-white bg-brand-blue text-center">Talk to Sales</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       VIEW 1: HOMEPAGE (SECTIONS 1 THROUGH 5)
+       ===================================================================== -->
+  <main id="view-home" class="flex-1">
+    
+    <!-- SECTION 1 — About us / Hero -->
+    <section id="about" class="scroll-mt-24 relative overflow-hidden bg-gradient-to-b from-brand-light/70 via-white to-white pt-14 pb-20 sm:pt-24 sm:pb-28 border-b border-slate-100">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="space-y-6 flex flex-col items-center">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-light border border-brand-lightBorder text-brand-blue text-xs sm:text-sm font-semibold">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+            <span>CV Management &amp; Talent Database</span>
+          </div>
+
+          <h1 class="text-3xl sm:text-5xl lg:text-[54px] font-extrabold text-brand-dark tracking-tight leading-[1.12]">
+            Your CVs. <span class="text-brand-blue">One Organized</span> Talent Database.
+          </h1>
+
+          <p class="text-base sm:text-lg text-brand-muted leading-relaxed max-w-2xl mx-auto">
+            ATSourcing Pro is designed to simplify how CVs are collected, uploaded, managed and organized. Whether you're managing a growing candidate database or looking to submit your CV for future opportunities, ATSourcing Pro makes the process straightforward.
+          </p>
+
+          <!-- Two Primary Buttons -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3.5 pt-2 w-full sm:w-auto">
+            <button onclick="openTrialModal()" class="px-7 py-3.5 rounded-xl bg-brand-blue hover:bg-brand-blueHover text-white font-semibold text-sm sm:text-base shadow-sm transition-all text-center">
+              Start Your 10-Day Free Trial
+            </button>
+            <button onclick="navigateTo('submit-cv')" class="px-7 py-3.5 rounded-xl bg-white hover:bg-brand-light text-brand-dark border border-slate-300 hover:border-brand-blue font-semibold text-sm sm:text-base transition-all text-center">
+              Submit Your CV
+            </button>
+          </div>
+
+          <!-- Platform Trust Bar -->
+          <div class="pt-4 flex flex-wrap items-center justify-center gap-x-8 gap-y-2.5 text-xs sm:text-sm text-brand-muted">
+            <div class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-brand-blue" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+              <span>Centralized Talent Vault</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-brand-blue" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+              <span>Bulk CV Upload</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-brand-blue" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span>10-Day Free Trial</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2 — What ATSourcing Pro offers -->
+    <section id="features" class="scroll-mt-24 py-16 sm:py-24 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl mx-auto text-center space-y-3 mb-12 sm:mb-16">
+          <span class="text-xs font-bold uppercase tracking-wider text-brand-blue">What ATSourcing Pro Offers</span>
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-brand-dark tracking-tight">
+            Your Talent Database, Organized.
+          </h2>
+          <p class="text-sm sm:text-base text-brand-muted">
+            Manage, organize and access CVs efficiently. Upload candidates in bulk, build your talent database and make candidate information easier to find.
+          </p>
+        </div>
+
+        <!-- Four Main Features Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          <!-- Feature 1: Bulk CV Upload -->
+          <div class="p-6 rounded-2xl bg-white border border-slate-200 hover:border-brand-blue/50 shadow-card transition-all flex flex-col justify-between group">
+            <div class="space-y-4">
+              <div class="w-12 h-12 rounded-xl bg-brand-light text-brand-blue flex items-center justify-center group-hover:bg-brand-blue group-hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold text-brand-dark">Bulk CV Upload</h3>
+              <p class="text-sm text-brand-muted leading-relaxed">
+                Upload multiple CVs into your database at once in PDF, DOC, or DOCX format to streamline candidate intake.
+              </p>
+            </div>
+          </div>
+
+          <!-- Feature 2: CV Management -->
+          <div class="p-6 rounded-2xl bg-white border border-slate-200 hover:border-brand-blue/50 shadow-card transition-all flex flex-col justify-between group">
+            <div class="space-y-4">
+              <div class="w-12 h-12 rounded-xl bg-brand-light text-brand-blue flex items-center justify-center group-hover:bg-brand-blue group-hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold text-brand-dark">CV Management</h3>
+              <p class="text-sm text-brand-muted leading-relaxed">
+                Keep candidate information organized in one place with structured profiles, notes, status tracking, and quick document access.
+              </p>
+            </div>
+          </div>
+
+          <!-- Feature 3: Candidate Organization -->
+          <div class="p-6 rounded-2xl bg-white border border-slate-200 hover:border-brand-blue/50 shadow-card transition-all flex flex-col justify-between group">
+            <div class="space-y-4">
+              <div class="w-12 h-12 rounded-xl bg-brand-light text-brand-blue flex items-center justify-center group-hover:bg-brand-blue group-hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold text-brand-dark">Candidate Organization</h3>
+              <p class="text-sm text-brand-muted leading-relaxed">
+                Make it easier to search and find relevant profiles using instant keyword search, country filters, tags, and pipeline stages.
+              </p>
+            </div>
+          </div>
+
+          <!-- Feature 4: Talent Database -->
+          <div class="p-6 rounded-2xl bg-white border border-slate-200 hover:border-brand-blue/50 shadow-card transition-all flex flex-col justify-between group">
+            <div class="space-y-4">
+              <div class="w-12 h-12 rounded-xl bg-brand-light text-brand-blue flex items-center justify-center group-hover:bg-brand-blue group-hover:text-white transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold text-brand-dark">Talent Database</h3>
+              <p class="text-sm text-brand-muted leading-relaxed">
+                Build and maintain a centralized candidate database with structured tagging, fast search, and reliable data management.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3 — Start your free trial -->
+    <section class="py-16 sm:py-20 bg-brand-light/70 border-y border-brand-lightBorder">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-3xl border border-brand-lightBorder shadow-soft p-8 sm:p-12 lg:p-14 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+          <div class="space-y-4 max-w-2xl">
+            <span class="inline-block px-3 py-1 rounded-full bg-brand-light text-brand-blue text-xs font-bold uppercase tracking-wider">
+              Start Your 10-Day Free Trial
+            </span>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-brand-dark tracking-tight">
+              Try ATSourcing Pro for 10 Days.
+            </h2>
+            <p class="text-sm sm:text-base text-brand-muted leading-relaxed">
+              Explore the platform and discover a more organized way to manage your CV database.
+            </p>
+            <ul class="space-y-2.5 pt-2 text-sm text-brand-dark font-medium">
+              <li class="flex items-center gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-brand-light text-brand-blue flex items-center justify-center flex-shrink-0">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                </span>
+                <span>10-day free trial.</span>
+              </li>
+              <li class="flex items-center gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-brand-light text-brand-blue flex items-center justify-center flex-shrink-0">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                </span>
+                <span>Access to the platform's CV management features.</span>
+              </li>
+              <li class="flex items-center gap-2.5">
+                <span class="w-5 h-5 rounded-full bg-brand-light text-brand-blue flex items-center justify-center flex-shrink-0">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                </span>
+                <span>Explore bulk uploads and candidate organization.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="w-full lg:w-auto flex flex-col items-stretch sm:items-center gap-3">
+            <button onclick="openTrialModal()" class="px-8 py-4 rounded-xl bg-brand-blue hover:bg-brand-blueHover text-white font-semibold text-base shadow-sm transition-all text-center">
+              Start Your Free Trial
+            </button>
+            <span class="text-xs text-brand-muted text-center">Quick workspace activation • Full CV management access</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4 — Pricing & Candidate Submission Pathways -->
+    <section id="pricing" class="scroll-mt-24 py-16 sm:py-24 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="max-w-3xl mx-auto text-center space-y-3 mb-12 sm:mb-16">
+          <span class="text-xs font-bold uppercase tracking-wider text-brand-blue">Simple, Transparent Options</span>
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-brand-dark tracking-tight">
+            Built for Recruiters &amp; Candidates
+          </h2>
+          <p class="text-sm sm:text-base text-brand-muted">
+            Choose the ATS workspace plan to manage your CV database, or submit your CV to our talent pool at no cost.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto items-stretch">
+          
+          <!-- Plan 1: ATSourcing Pro ATS System ($99 USD) -->
+          <div class="rounded-3xl border-2 border-brand-blue bg-white p-8 sm:p-10 shadow-soft flex flex-col justify-between relative">
+            <div class="absolute -top-3.5 right-8 px-3.5 py-1 rounded-full bg-brand-blue text-white text-xs font-bold tracking-wide">
+              10-Day Free Trial Included
+            </div>
+            <div class="space-y-5">
+              <div>
+                <h3 class="text-xl font-bold text-brand-dark">ATSourcing Pro — ATS System</h3>
+                <p class="text-sm text-brand-muted mt-1">Complete CV management &amp; talent database for teams and recruiters.</p>
+              </div>
+
+              <div class="flex items-baseline gap-2 pt-2">
+                <span class="text-4xl sm:text-5xl font-extrabold text-brand-dark">$99</span>
+                <span class="text-sm font-semibold text-brand-muted">USD</span>
+              </div>
+
+              <ul class="space-y-3 pt-4 border-t border-slate-100 text-sm text-brand-dark">
+                <li class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-brand-blue flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  <span>Start with a full <strong>10-Day Free Trial</strong> before billing</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-brand-blue flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  <span>Dedicated private workspace — your team's centralized CV database</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-brand-blue flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  <span>Bulk CV upload (PDF, DOC, DOCX) with instant preview</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-brand-blue flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  <span>Centralized candidate organization, tagging &amp; fast profile search</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="pt-8 mt-8 border-t border-slate-100">
+              <button onclick="openTrialModal()" class="w-full py-3.5 px-6 rounded-xl bg-brand-blue hover:bg-brand-blueHover text-white font-semibold text-sm sm:text-base shadow-sm transition-all">
+                Start Your 10-Day Free Trial
+              </button>
+            </div>
+          </div>
+
+          <!-- Plan 2: Spontaneous Candidate CV Submission (Free) -->
+          <div class="rounded-3xl border border-slate-200 bg-slate-50/60 p-8 sm:p-10 shadow-card flex flex-col justify-between">
+            <div class="space-y-5">
+              <div>
+                <span class="inline-block px-2.5 py-0.5 rounded-md bg-brand-light text-brand-blue text-xs font-semibold mb-2">
+                  For Candidates
+                </span>
+                <h3 class="text-xl font-bold text-brand-dark">Candidate Talent Database</h3>
+                <p class="text-sm text-brand-muted mt-1 leading-relaxed">
+                  For individuals who want to submit their CV and be considered for relevant future opportunities.
+                </p>
+              </div>
+
+              <div class="flex items-baseline gap-2 pt-2">
+                <span class="text-4xl sm:text-5xl font-extrabold text-brand-dark">Free</span>
+                <span class="text-sm font-medium text-brand-muted">for job seekers</span>
+              </div>
+
+              <ul class="space-y-3 pt-4 border-t border-slate-200/80 text-sm text-brand-dark">
+                <li class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-brand-blue flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  <span>Submit your professional information.</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-brand-blue flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  <span>Upload your CV.</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-brand-blue flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  <span>Consent to your CV being shared with relevant companies if a suitable opportunity arises.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="pt-8 mt-8 border-t border-slate-200/80">
+              <button onclick="navigateTo('submit-cv')" class="w-full py-3.5 px-6 rounded-xl bg-white hover:bg-brand-light text-brand-blue border border-brand-blue font-semibold text-sm sm:text-base transition-all">
+                Submit Your CV
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5 — Contact -->
+    <section id="contact" class="scroll-mt-24 py-16 sm:py-20 bg-brand-dark text-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+          <div class="space-y-3 max-w-2xl">
+            <span class="text-xs font-bold uppercase tracking-wider text-blue-300">Contact</span>
+            <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+              Have questions? Let's talk.
+            </h2>
+            <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+              For platform enquiries, trial assistance, pricing and general questions.
+            </p>
+          </div>
+          <div class="w-full md:w-auto">
+            <button onclick="openContactModal()" class="w-full md:w-auto px-7 py-3.5 rounded-xl bg-brand-blue hover:bg-brand-blueHover text-white font-semibold text-sm sm:text-base shadow-sm transition-all">
+              Contact Our Team
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =====================================================================
+       VIEW 2: SPONTANEOUS CV SUBMISSION FORM PAGE
+       ===================================================================== -->
+  <section id="view-submit-cv" class="hidden py-12 sm:py-16 bg-slate-50/70 min-h-[calc(100vh-5rem)]">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Back Breadcrumb -->
+      <div class="mb-6">
+        <button onclick="navigateTo('home')" class="inline-flex items-center gap-1.5 text-sm font-medium text-brand-muted hover:text-brand-blue transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          <span>Back to Homepage</span>
+        </button>
+      </div>
+
+      <!-- Form Card -->
+      <div class="bg-white rounded-3xl border border-slate-200 shadow-soft p-6 sm:p-10">
+        
+        <!-- Page Heading -->
+        <div class="border-b border-slate-100 pb-6 mb-8 space-y-2">
+          <span class="inline-block px-3 py-1 rounded-full bg-brand-light text-brand-blue text-xs font-semibold">
+            Candidate Portal
+          </span>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-brand-dark tracking-tight">
+            Submit Your CV
+          </h1>
+          <p class="text-sm sm:text-base text-brand-muted">
+            Join our talent database and allow us to consider your profile for relevant professional opportunities.
+          </p>
+        </div>
+
+        <!-- Confirmation Message State (Hidden initially) -->
+        <div id="cv-confirmation-panel" class="hidden py-8 px-4 text-center space-y-5">
+          <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div class="max-w-lg mx-auto space-y-2">
+            <h2 class="text-xl sm:text-2xl font-bold text-brand-dark">Application Received</h2>
+            <p class="text-sm sm:text-base text-brand-muted leading-relaxed">
+              "Thank you for submitting your CV. Your information has been received and will be reviewed for potential opportunities. Our team may contact you if a suitable opportunity becomes available."
+            </p>
+          </div>
+          <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button onclick="resetCandidateForm()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-brand-light text-brand-blue font-semibold text-sm hover:bg-brand-lightBorder transition-colors">
+              Submit Another CV
+            </button>
+            <button onclick="navigateTo('home')" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-brand-blue text-white font-semibold text-sm hover:bg-brand-blueHover transition-colors">
+              Return to Homepage
+            </button>
+          </div>
+        </div>
+
+        <!-- Spontaneous CV Submission Form -->
+        <form id="cv-submission-form" onsubmit="handleCandidateSubmit(event)" class="space-y-6">
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <!-- Full name -->
+            <div class="sm:col-span-2">
+              <label for="cand-name" class="block text-sm font-semibold text-brand-dark mb-1.5">
+                Full name <span class="text-red-500">*</span>
+              </label>
+              <input type="text" id="cand-name" required placeholder="e.g. Sarah Benali" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15" />
+            </div>
+
+            <!-- Email address -->
+            <div>
+              <label for="cand-email" class="block text-sm font-semibold text-brand-dark mb-1.5">
+                Email address <span class="text-red-500">*</span>
+              </label>
+              <input type="email" id="cand-email" required placeholder="name@example.com" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15" />
+            </div>
+
+            <!-- Phone number -->
+            <div>
+              <label for="cand-phone" class="block text-sm font-semibold text-brand-dark mb-1.5">
+                Phone number <span class="text-red-500">*</span>
+              </label>
+              <input type="tel" id="cand-phone" required placeholder="+1 (555) 234-5678" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15" />
+            </div>
+
+            <!-- Country -->
+            <div>
+              <label for="cand-country" class="block text-sm font-semibold text-brand-dark mb-1.5">
+                Country <span class="text-red-500">*</span>
+              </label>
+              <select id="cand-country" required onchange="updateStateRegionField()" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15">
+                <option value="">Select a country...</option>
+                <option value="Algeria">Algeria</option>
+                <option value="Canada">Canada</option>
+                <option value="France">France</option>
+                <option value="Germany">Germany</option>
+                <option value="Morocco">Morocco</option>
+                <option value="Tunisia">Tunisia</option>
+                <option value="United Arab Emirates">United Arab Emirates</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="United States">United States</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <!-- State / Region -->
+            <div>
+              <label for="cand-region" class="block text-sm font-semibold text-brand-dark mb-1.5">
+                State / Region <span class="text-red-500">*</span>
+              </label>
+              <div id="region-input-wrapper">
+                <input type="text" id="cand-region" required placeholder="e.g. Algiers, California, Île-de-France" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15" />
+              </div>
+            </div>
+
+            <!-- Date of birth -->
+            <div>
+              <label for="cand-dob" class="block text-sm font-semibold text-brand-dark mb-1.5">
+                Date of birth <span class="text-red-500">*</span>
+              </label>
+              <input type="date" id="cand-dob" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15" />
+            </div>
+
+            <!-- Optional Target Role / Specialty for CRM Organization -->
+            <div>
+              <label for="cand-role" class="block text-sm font-semibold text-brand-dark mb-1.5">
+                Primary Role / Specialty <span class="text-xs font-normal text-brand-muted">(Optional)</span>
+              </label>
+              <input type="text" id="cand-role" placeholder="e.g. Project Manager, Software Engineer" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15" />
+            </div>
+          </div>
+
+          <!-- CV Upload (PDF/DOC/DOCX) -->
+          <div>
+            <label class="block text-sm font-semibold text-brand-dark mb-1.5">
+              CV upload (PDF / DOC / DOCX) <span class="text-red-500">*</span>
+            </label>
+            <div id="cand-dropzone" onclick="document.getElementById('cand-cv-file').click()" class="border-2 border-dashed border-slate-300 hover:border-brand-blue bg-slate-50/70 hover:bg-brand-light/40 rounded-2xl p-6 text-center cursor-pointer transition-all">
+              <input type="file" id="cand-cv-file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required class="hidden" onchange="handleCandidateFileSelect(event)" />
+              <div class="w-11 h-11 rounded-xl bg-brand-light text-brand-blue flex items-center justify-center mx-auto mb-3">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+              </div>
+              <p id="cand-file-label" class="text-sm font-semibold text-brand-dark">Click to upload your CV or drag and drop</p>
+              <p id="cand-file-sub" class="text-xs text-brand-muted mt-1">Accepted formats: PDF, DOC, DOCX (Max 10 MB)</p>
+            </div>
+          </div>
+
+          <!-- Consent Section & Privacy Notice -->
+          <div class="rounded-2xl bg-slate-50 border border-slate-200 p-5 sm:p-6 space-y-4">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-brand-blue" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <h3 class="text-base font-bold text-brand-dark">Candidate consent</h3>
+            </div>
+
+            <p class="text-xs sm:text-sm text-brand-dark/90 leading-relaxed">
+              I understand that by submitting my CV, my information may be stored in the ATSourcing Pro candidate database and reviewed for relevant professional opportunities.
+            </p>
+
+            <!-- Clear Privacy Notice -->
+            <div class="rounded-xl bg-white border border-slate-200/90 p-4 text-xs text-brand-muted space-y-2 leading-relaxed">
+              <p class="font-semibold text-brand-dark">Privacy Notice — Data Use, Retention, Access &amp; Withdrawal</p>
+              <p>
+                <strong>Data Use &amp; Employer Sharing:</strong> Your submitted contact details and CV document are used exclusively to evaluate your qualifications for suitable career openings. Separate explicit authorization will be requested from you before sharing identifiable CV information with any specific prospective employer.
+              </p>
+              <p>
+                <strong>Data Storage &amp; Retention:</strong> Your candidate profile and CV file are securely stored in the ATSourcing Pro talent database for up to 24 months unless you request earlier removal.
+              </p>
+              <p>
+                <strong>Access &amp; Withdrawal:</strong> You have the right to access, rectify, export, or withdraw your consent and request deletion of your profile at any time by contacting our team.
+              </p>
+            </div>
+
+            <!-- Mandatory Checkbox -->
+            <label class="flex items-start gap-3 cursor-pointer pt-1">
+              <input type="checkbox" id="consent-mandatory" required class="mt-1 w-4 h-4 rounded border-slate-300 text-brand-blue focus:ring-brand-blue" />
+              <span class="text-xs sm:text-sm font-medium text-brand-dark">
+                I consent to my CV being stored and considered for relevant opportunities. <span class="text-red-600 font-semibold">(Mandatory)</span>
+              </span>
+            </label>
+
+            <!-- Optional Checkbox -->
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="consent-comms" class="mt-1 w-4 h-4 rounded border-slate-300 text-brand-blue focus:ring-brand-blue" />
+              <span class="text-xs sm:text-sm text-brand-muted">
+                I agree to receive recruitment-related communications. <span class="text-xs text-slate-400">(Optional)</span>
+              </span>
+            </label>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-2">
+            <button type="submit" id="cand-submit-btn" class="w-full py-3.5 px-6 rounded-xl bg-brand-blue hover:bg-brand-blueHover text-white font-semibold text-sm sm:text-base shadow-sm transition-all">
+              Submit Application
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       FOOTER
+       ===================================================================== -->
+  <footer class="bg-white border-t border-slate-200 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex flex-col sm:flex-row items-center justify-end gap-4 text-xs text-brand-muted">
+        <p class="whitespace-nowrap">&copy; 2025 ATSourcing Pro. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =====================================================================
+       MODAL 1: START 10-DAY FREE TRIAL ($99 USD ATS SYSTEM)
+       ===================================================================== -->
+  <div id="trial-modal" class="hidden fixed inset-0 z-50 bg-brand-dark/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-xl border border-slate-200 space-y-5 relative my-8">
+      <button onclick="closeTrialModal()" aria-label="Close modal" class="absolute top-5 right-5 p-2 rounded-lg text-slate-400 hover:text-brand-dark hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+
+      <!-- Trial Form Container -->
+      <div id="trial-form-container" class="space-y-5">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-brand-light text-brand-blue flex items-center justify-center flex-shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-brand-blue">10-Day Free Trial</span>
+            <h3 class="text-xl sm:text-2xl font-bold text-brand-dark">Request Trial Access</h3>
+          </div>
+        </div>
+
+        <p class="text-sm text-brand-muted leading-relaxed">
+          Complete the form below to request your 10-day free trial of ATSourcing Pro. Our team will review your request and contact you to set up your trial access.
+        </p>
+
+        <form id="trial-request-form" onsubmit="submitTrialRequest(event)" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Full Name -->
+            <div class="sm:col-span-2">
+              <label for="trial-full-name" class="block text-xs font-semibold text-brand-dark mb-1">
+                Full Name <span class="text-red-500">*</span>
+              </label>
+              <input type="text" id="trial-full-name" required placeholder="e.g. Sarah Benali" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15" />
+            </div>
+
+            <!-- Work Email -->
+            <div>
+              <label for="trial-email" class="block text-xs font-semibold text-brand-dark mb-1">
+                Email <span class="text-red-500">*</span>
+              </label>
+              <input type="email" id="trial-email" required placeholder="recruiter@company.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15" />
+            </div>
+
+            <!-- Phone Number -->
+            <div>
+              <label for="trial-phone" class="block text-xs font-semibold text-brand-dark mb-1">
+                Phone <span class="text-red-500">*</span>
+              </label>
+              <input type="tel" id="trial-phone" required placeholder="+1 (555) 234-5678" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15" />
+            </div>
+
+            <!-- Country -->
+            <div class="sm:col-span-2">
+              <label for="trial-country" class="block text-xs font-semibold text-brand-dark mb-1">
+                Country <span class="text-red-500">*</span>
+              </label>
+              <select id="trial-country" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15">
+                <option value="">Select a country...</option>
+                <option value="Algeria">Algeria</option>
+                <option value="Canada">Canada</option>
+                <option value="France">France</option>
+                <option value="Germany">Germany</option>
+                <option value="Morocco">Morocco</option>
+                <option value="Tunisia">Tunisia</option>
+                <option value="United Arab Emirates">United Arab Emirates</option>
+                <option value="United Kingdom">United Kingdom</option>
+                <option value="United States">United States</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <!-- Company Name -->
+            <div>
+              <label for="trial-company-name" class="block text-xs font-semibold text-brand-dark mb-1">
+                Company Name <span class="text-red-500">*</span>
+              </label>
+              <input type="text" id="trial-company-name" required placeholder="e.g. Horizon Talent Partners" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15" />
+            </div>
+
+            <!-- Position / Job Title -->
+            <div>
+              <label for="trial-position" class="block text-xs font-semibold text-brand-dark mb-1">
+                Position <span class="text-red-500">*</span>
+              </label>
+              <input type="text" id="trial-position" required placeholder="e.g. Talent Acquisition Lead" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15" />
+            </div>
+          </div>
+
+          <div class="pt-2">
+            <button type="submit" class="w-full py-3 rounded-xl bg-brand-blue hover:bg-brand-blueHover text-white font-semibold text-sm shadow-sm transition-all">
+              Submit
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Trial Request Confirmation State (Hidden initially) -->
+      <div id="trial-confirmation-panel" class="hidden py-6 text-center space-y-4">
+        <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <div class="space-y-2">
+          <h3 class="text-xl font-bold text-brand-dark">Trial Request Received</h3>
+          <p class="text-sm text-brand-muted leading-relaxed">
+            Thank you for requesting a 10-day free trial of ATSourcing Pro. Your request has been received, and you will be contacted by our team shortly to set up your trial access.
+          </p>
+        </div>
+        <div class="pt-2">
+          <button onclick="closeTrialModal()" class="w-full py-3 rounded-xl bg-brand-blue hover:bg-brand-blueHover text-white font-semibold text-sm shadow-sm transition-all">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 2: CONTACT OUR TEAM
+       ===================================================================== -->
+  <div id="contact-modal" class="hidden fixed inset-0 z-50 bg-brand-dark/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-xl border border-slate-200 space-y-5 relative">
+      <button onclick="closeContactModal()" aria-label="Close modal" class="absolute top-5 right-5 p-2 rounded-lg text-slate-400 hover:text-brand-dark hover:bg-slate-100">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-brand-blue">Contact Our Team</span>
+        <h3 class="text-2xl font-bold text-brand-dark mt-1">Have questions? Let's talk.</h3>
+        <p class="text-sm text-brand-muted mt-1.5">
+          For platform enquiries, trial assistance, pricing ($99 USD) and general questions.
+        </p>
+      </div>
+
+      <form onsubmit="submitContactForm(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-brand-dark mb-1">Your Name</label>
+          <input type="text" required placeholder="Full name" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-blue" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-brand-dark mb-1">Email Address</label>
+          <input type="email" required placeholder="you@company.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-blue" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-brand-dark mb-1">Topic</label>
+          <select class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:border-brand-blue">
+            <option>10-Day Free Trial Assistance</option>
+            <option>Pricing &amp; Licensing ($99 USD)</option>
+            <option>Platform &amp; CV Management Enquiry</option>
+            <option>Candidate Data / Privacy Request</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-brand-dark mb-1">Message</label>
+          <textarea rows="3" required placeholder="How can our team help you?" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-blue"></textarea>
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl bg-brand-blue hover:bg-brand-blueHover text-white font-semibold text-sm shadow-sm transition-all">
+          Send Message
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       JAVASCRIPT: NAVIGATION, FORMS & PUBLIC UI INTERACTIONS
+       ===================================================================== -->
+  <script>
+    let selectedCandidateFile = null;
+
+    // -----------------------------------------------------------------------
+    // 1. NAVIGATION & VIEW ROUTING
+    // -----------------------------------------------------------------------
+    function navigateTo(viewName) {
+      const homeView = document.getElementById('view-home');
+      const submitCvView = document.getElementById('view-submit-cv');
+
+      if (viewName === 'submit-cv') {
+        if (homeView) {
+          homeView.classList.add('hidden');
+          homeView.style.display = 'none';
+        }
+        if (submitCvView) {
+          submitCvView.classList.remove('hidden');
+          submitCvView.style.display = 'block';
+        }
+      } else {
+        if (submitCvView) {
+          submitCvView.classList.add('hidden');
+          submitCvView.style.display = 'none';
+        }
+        if (homeView) {
+          homeView.classList.remove('hidden');
+          homeView.style.display = 'block';
+        }
+      }
+
+      // Highlight active navigation link
+      const submitNav = document.getElementById('nav-submit-cv');
+      if (submitNav) {
+        submitNav.classList.toggle('text-brand-blue', viewName === 'submit-cv');
+        submitNav.classList.toggle('font-semibold', viewName === 'submit-cv');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function navigateHomeSection(sectionId) {
+      navigateTo('home');
+      requestAnimationFrame(() => {
+        const target = document.getElementById(sectionId);
+        if (target) {
+          const headerOffset = 84;
+          const elementPosition = target.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          window.scrollTo({
+            top: Math.max(0, offsetPosition),
+            behavior: 'smooth'
+          });
+        }
+      });
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      if (menu) {
+        menu.classList.toggle('hidden');
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // 2. MODALS & FREE TRIAL REQUEST FLOW
+    // -----------------------------------------------------------------------
+    function openTrialModal() {
+      const form = document.getElementById('trial-request-form');
+      if (form) form.reset();
+      document.getElementById('trial-form-container').classList.remove('hidden');
+      document.getElementById('trial-confirmation-panel').classList.add('hidden');
+      document.getElementById('trial-modal').classList.remove('hidden');
+    }
+    function closeTrialModal() {
+      document.getElementById('trial-modal').classList.add('hidden');
+    }
+    function submitTrialRequest(event) {
+      event.preventDefault();
+      document.getElementById('trial-form-container').classList.add('hidden');
+      document.getElementById('trial-confirmation-panel').classList.remove('hidden');
+      showToast('Trial request submitted. Our team will contact you shortly.', 'success');
+    }
+
+    function openContactModal() {
+      document.getElementById('contact-modal').classList.remove('hidden');
+    }
+    function closeContactModal() {
+      document.getElementById('contact-modal').classList.add('hidden');
+    }
+    function submitContactForm(event) {
+      event.preventDefault();
+      event.target.reset();
+      closeContactModal();
+      showToast('Thank you! Your message has been sent to the ATSourcing Pro team.', 'success');
+    }
+
+    // -----------------------------------------------------------------------
+    // 3. DYNAMIC COUNTRY -> STATE / REGION INPUT
+    // -----------------------------------------------------------------------
+    const COUNTRY_REGIONS = {
+      'United States': ['California', 'New York', 'Texas', 'Florida', 'Illinois', 'Washington', 'Massachusetts', 'Other State'],
+      'Canada': ['Ontario', 'Quebec', 'British Columbia', 'Alberta', 'Manitoba', 'Nova Scotia', 'Other Province'],
+      'Algeria': ['Algiers', 'Oran', 'Constantine', 'Annaba', 'Blida', 'Sétif', 'Tizi Ouzou', 'Other Wilaya'],
+      'France': ['Île-de-France', 'Auvergne-Rhône-Alpes', 'Provence-Alpes-Côte d\'Azur', 'Occitanie', 'Nouvelle-Aquitaine', 'Hauts-de-France', 'Other Region'],
+      'United Kingdom': ['England', 'Scotland', 'Wales', 'Northern Ireland']
+    };
+
+    function updateStateRegionField() {
+      const country = document.getElementById('cand-country').value;
+      const wrapper = document.getElementById('region-input-wrapper');
+      const regions = COUNTRY_REGIONS[country];
+
+      if (regions) {
+        const options = regions.map((r) => `<option value="${r}">${r}</option>`).join('');
+        wrapper.innerHTML = `
+          <select id="cand-region" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15">
+            <option value="">Select state / region...</option>
+            ${options}
+          </select>
+        `;
+      } else {
+        wrapper.innerHTML = `
+          <input type="text" id="cand-region" required placeholder="Enter state, province, or region" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15" />
+        `;
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // 4. SPONTANEOUS CV SUBMISSION FORM HANDLERS (NO CLIENT-SIDE STORAGE)
+    // -----------------------------------------------------------------------
+    function handleCandidateFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      selectedCandidateFile = file;
+      document.getElementById('cand-file-label').textContent = file.name;
+      document.getElementById('cand-file-sub').textContent = `${formatBytes(file.size)} • Ready to submit`;
+    }
+
+    function handleCandidateSubmit(event) {
+      event.preventDefault();
+      if (!selectedCandidateFile) {
+        showToast('Please attach your CV file (PDF, DOC, or DOCX) before submitting.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('cand-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Submitting Application...';
+
+      setTimeout(() => {
+        selectedCandidateFile = null;
+        document.getElementById('cv-submission-form').classList.add('hidden');
+        document.getElementById('cv-confirmation-panel').classList.remove('hidden');
+        showToast('Your CV has been securely submitted.', 'success');
+        btn.disabled = false;
+        btn.textContent = 'Submit Application';
+      }, 300);
+    }
+
+    function resetCandidateForm() {
+      document.getElementById('cv-submission-form').reset();
+      selectedCandidateFile = null;
+      document.getElementById('cand-file-label').textContent = 'Click to upload your CV or drag and drop';
+      document.getElementById('cand-file-sub').textContent = 'Accepted formats: PDF, DOC, DOCX (Max 10 MB)';
+      document.getElementById('cv-confirmation-panel').classList.add('hidden');
+      document.getElementById('cv-submission-form').classList.remove('hidden');
+    }
+
+    function setupDropzones() {
+      const candZone = document.getElementById('cand-dropzone');
+      if (candZone) {
+        ['dragenter', 'dragover'].forEach((evt) => {
+          candZone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            candZone.classList.add('border-brand-blue', 'bg-brand-light/40');
+          });
+        });
+        ['dragleave', 'drop'].forEach((evt) => {
+          candZone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            candZone.classList.remove('border-brand-blue', 'bg-brand-light/40');
+          });
+        });
+        candZone.addEventListener('drop', (e) => {
+          const file = e.dataTransfer?.files?.[0];
+          if (file) {
+            selectedCandidateFile = file;
+            document.getElementById('cand-file-label').textContent = file.name;
+            document.getElementById('cand-file-sub').textContent = `${formatBytes(file.size)} • Ready to submit`;
+          }
+        });
+      }
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const toast = document.createElement('div');
+      const borderClass = type === 'error'
+        ? 'border-red-200 bg-red-50 text-red-900'
+        : type === 'success'
+        ? 'border-emerald-200 bg-white text-brand-dark'
+        : 'border-brand-lightBorder bg-white text-brand-dark';
+
+      toast.className = `pointer-events-auto p-4 rounded-2xl border shadow-soft text-xs sm:text-sm font-medium flex items-center justify-between gap-3 transition-all ${borderClass}`;
+      toast.innerHTML = `
+        <span>${escapeHTML(message)}</span>
+        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-brand-dark font-bold">&times;</button>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => {
+        if (toast.parentElement) toast.remove();
+      }, 4500);
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes || bytes === 0) return '0 KB';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function escapeHTML(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Explicitly expose handlers on window for reliable inline onclick execution
+    window.navigateTo = navigateTo;
+    window.navigateHomeSection = navigateHomeSection;
+    window.toggleMobileMenu = toggleMobileMenu;
+    window.openTrialModal = openTrialModal;
+    window.closeTrialModal = closeTrialModal;
+    window.submitTrialRequest = submitTrialRequest;
+    window.openContactModal = openContactModal;
+    window.closeContactModal = closeContactModal;
+    window.submitContactForm = submitContactForm;
+    window.updateStateRegionField = updateStateRegionField;
+    window.handleCandidateFileSelect = handleCandidateFileSelect;
+    window.handleCandidateSubmit = handleCandidateSubmit;
+    window.resetCandidateForm = resetCandidateForm;
+    window.setupDropzones = setupDropzones;
+    window.showToast = showToast;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setupDropzones();
+    });
+  </script>
+</body>
+</html>
