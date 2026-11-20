@@ -1114,6 +1114,82 @@
       } catch (err) { console.error(err); }
       _origContact.call(this, event);
     };
+  <script>
+    // Override CV submission to also save to Supabase
+    const _origCandSubmit = window.handleCandidateSubmit;
+    window.handleCandidateSubmit = async function(event) {
+      event.preventDefault();
+      if (!selectedCandidateFile) {
+        showToast('Please attach your CV file (PDF, DOC, or DOCX) before submitting.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('cand-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Submitting Application...';
+
+      try {
+        // Save candidate metadata
+        const formData = new FormData();
+        formData.append('full_name', document.getElementById('cand-name').value);
+        formData.append('email', document.getElementById('cand-email').value);
+        formData.append('phone', document.getElementById('cand-phone').value);
+        formData.append('country', document.getElementById('cand-country').value);
+        formData.append('region', document.getElementById('cand-region').value);
+        formData.append('date_of_birth', document.getElementById('cand-dob').value);
+        formData.append('primary_role', document.getElementById('cand-role').value || null);
+        formData.append('consent_storage', document.getElementById('consent-mandatory').checked);
+        formData.append('consent_communications', document.getElementById('consent-comms').checked);
+
+        const { data: candData, error: candError } = await sbClient
+          .from('candidates')
+          .insert([{
+            full_name: formData.get('full_name'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            country: formData.get('country'),
+            region: formData.get('region'),
+            date_of_birth: formData.get('date_of_birth'),
+            primary_role: formData.get('primary_role'),
+            consent_storage: formData.get('consent_storage') === 'true',
+            consent_communications: formData.get('consent_communications') === 'true',
+          }])
+          .select()
+          .single();
+
+        if (candError) throw candError;
+
+        // Upload CV file to Supabase Storage
+        const fileName = candData.id + '_' + selectedCandidateFile.name;
+        const { error: uploadError } = await sbClient.storage
+          .from('candidate-cvs')
+          .upload(fileName, selectedCandidateFile);
+        if (uploadError) throw uploadError;
+
+        // Update candidate with CV path
+        await sbClient.from('candidates')
+          .update({
+            cv_path: 'candidate-cvs/' + fileName,
+            cv_original_name: selectedCandidateFile.name,
+            cv_size_bytes: selectedCandidateFile.size,
+          })
+          .eq('id', candData.id);
+
+      } catch (err) {
+        console.error('CV submission error:', err);
+        showToast('Error submitting CV. Please try again.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Submit Application';
+        return;
+      }
+
+      selectedCandidateFile = null;
+      document.getElementById('cv-submission-form').classList.add('hidden');
+      document.getElementById('cv-confirmation-panel').classList.remove('hidden');
+      showToast('Your CV has been securely submitted.', 'success');
+      btn.disabled = false;
+      btn.textContent = 'Submit Application';
+    };
   </script>
 </body>
 </html>
