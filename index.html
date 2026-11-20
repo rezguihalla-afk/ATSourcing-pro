@@ -1061,38 +1061,59 @@
     window.addEventListener('DOMContentLoaded', () => {
       setupDropzones();
     });
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const supabase = supabase.createClient(
-    'https://ernzjzuyhmmsplndunwi.supabase.co',
-    'sb_publishable_2VqPe_UxGynWjSOqM5pr9w_us9Cv1KD'
-  );
+  </script>
 
-  // Trial form submit
-  document.addEventListener('DOMContentLoaded', () => {
-    const trialForm = document.querySelector('#trialForm, form');
-    if (trialForm) {
-      trialForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = trialForm.querySelector('button[type="submit"]');
-        btn.textContent = 'Submitting...';
-        btn.disabled = true;
-        try {
-          const formData = new FormData(trialForm);
-          const data = Object.fromEntries(formData.entries());
-          const { error } = await supabase.from('trial_requests').insert([data]);
-          if (error) throw error;
-          alert('Request submitted successfully!');
-          trialForm.reset();
-        } catch (err) {
-          alert('Error: ' + err.message);
-        } finally {
-          btn.textContent = 'Submit';
-          btn.disabled = false;
-        }
-      });
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const sbClient = window.supabase.createClient(
+      'https://ernzjzuyhmmsplndunwi.supabase.co',
+      'sb_publishable_2VqPe_UxGynWjSOqM5pr9w_us9Cv1KD'
+    );
+
+    // Save trial request to Supabase
+    async function saveTrialRequest(data) {
+      await sbClient.from('trial_requests').insert([{
+        full_name: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        country: data.country,
+        company_name: data.company,
+        position: data.position
+      }]);
     }
-  });
-</script>
+
+    // Override the original submit handlers to also save to database
+    const _origSubmitTrial = window.submitTrialRequest;
+    window.submitTrialRequest = async function(event) {
+      event.preventDefault();
+      try {
+        await saveTrialRequest({
+          fullName: document.getElementById('trial-full-name').value,
+          email: document.getElementById('trial-email').value,
+          phone: document.getElementById('trial-phone').value,
+          country: document.getElementById('trial-country').value,
+          company: document.getElementById('trial-company-name').value,
+          position: document.getElementById('trial-position').value
+        });
+      } catch (err) { console.error(err); }
+      _origSubmitTrial.call(this, event);
+    };
+
+    const _origContact = window.submitContactForm;
+    window.submitContactForm = async function(event) {
+      event.preventDefault();
+      const form = event.target;
+      const inputs = form.querySelectorAll('input, select, textarea');
+      try {
+        await sbClient.from('contact_messages').insert([{
+          full_name: inputs[0].value,
+          email: inputs[1].value,
+          topic: inputs[2].value,
+          message: inputs[3].value
+        }]);
+      } catch (err) { console.error(err); }
+      _origContact.call(this, event);
+    };
+  </script>
 </body>
 </html>
